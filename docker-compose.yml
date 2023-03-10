@@ -1,0 +1,57 @@
+# version: "3.1"
+# services:
+#   mongodb:
+#     image: mongo:latest
+#     container_name: mongo
+#     restart: always
+#     ports:
+#       - 27017:27017
+#     volumes:
+#       - ./data-db:/data/db
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: root
+#       MONGO_INITDB_ROOT_PASSWORD: mongoadmin
+#       MONGO_INITDB_DATABASE: student
+
+#   goapi:
+#     container_name: goapi
+#     restart: always
+#     ports:
+#       - 80:8080
+#     links:
+#       - mongodb
+#     volumes:
+#       - ./goapi:/app/main
+#     build:
+#       context: ./goapi
+#       dockerfile: Dockerfile
+
+version: "3.8"
+
+services:
+  db:
+    image: mongo
+    container_name: my-mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-data:/data/db
+
+  app:
+    image: golang:1.19-alpine3.16
+    container_name: my-golang-app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      MONGO_URI: mongodb://root:example@db:27017
+    working_dir: /go/src/app
+    volumes:
+      - ./goapi:/go/src/app
+    command: go run main.go
